@@ -1,0 +1,97 @@
+#### modify config files with sample sheets ####
+
+configfile: "config.yaml"
+
+#### target rules ####
+
+rule all:
+    input:
+        expand("{sample}/yield.tab", sample=config["samples"]),
+        expand("{sample}/kraken2.tab", sample=config["samples"]),
+        expand("{sample}/shovill", sample=config["samples"]),
+        expand("filtered_contigs/{sample}.fna", sample=config["samples"]),
+        "denovo.tab",
+        "mlst.tab",
+        expand("{sample}/abricate.tab", sample=config["samples"]),
+        "resistome.tab",
+        "sistr.tab"
+
+rule fq:
+   input:
+        r1= "input/{sample}_R1.fastq.gz",
+        r2= "input/{sample}_R2.fastq.gz"
+   output:
+        "{sample}/yield.tab"
+   shell:
+        "fq {input.r1} {input.r2} > {output}"
+
+rule kraken:
+   input:
+        r1 = "input/{sample}_R1.fastq.gz",
+        r2 = "input/{sample}_R2.fastq.gz"
+   output:
+        "{sample}/kraken2.tab"
+   threads: 4
+   shell:
+        "kraken2 --threads {threads} --memory-mapping --db /data/sacgf/microbio/lleong/ref_tab/kraken2/microbe/ --report {output} --paired {input.r1} {input.r2}"
+
+rule shovill:
+   input:
+        r1 = "input/{sample}_R1.fastq.gz",
+        r2 = "input/{sample}_R2.fastq.gz"
+   output:
+        directory("{sample}/shovill")
+   threads: 16
+   shell:
+        "shovill --force --cpus {threads} -R1 {input.r1} -R2 {input.r2} --outdir {output}"
+
+rule remove_small:
+   input:
+        "{sample}/shovill"
+   output:
+        "filtered_contigs/{sample}.fna"
+   shell:
+        "perl /data/sacgf/microbio/lleong/commands/removesmalls.pl 1000 {input}/contigs.fa > {output}"
+
+rule assembly_quality:
+   input:
+        expand("filtered_contigs/{sample}.fna", sample=config["samples"])
+   output:
+        "denovo.tab"
+   shell:
+         "fa -e -t {input} > {output}"  
+
+rule mlst:
+   input:
+        expand("filtered_contigs/{sample}.fna", sample=config["samples"])
+   output:
+        "mlst.tab"
+   shell:
+        "mlst {input} > {output}"
+
+rule abricate:
+   input:
+        "filtered_contigs/{sample}.fna"
+   output:
+        "{sample}/abricate.tab"
+   shell:
+        "abricate {input} > {output}"
+
+rule abricate_sum:
+   input:
+        expand("{sample}/abricate.tab", sample=config["samples"])
+   output:
+        "resistome.tab"
+   shell:
+        "abricate --summary {input} > {output}"
+
+rule sistr:
+   input:
+        expand("filtered_contigs/{salmonella}.fna", salmonella=config["salmonella"])
+   output:
+        all = "sistr.tab",
+        cgmlst = "cgmlst.csv"
+   conda:
+        "envs/sistr.yaml"
+   shell:
+        "sistr --qc --cgmlst-profiles {output.cgmlst} -f tab -o {output.all} {input}"
