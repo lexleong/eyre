@@ -24,6 +24,19 @@ conda install snakemake
 Installation can be performed according to [sistr_cmd](https://github.com/phac-nml/sistr_cmd).
 ```
 conda create -n sistr sistr_cmd
+```
+## Workflow
 
-## Usage
+1. Create input folder
+```
+$ mkdir input
+```
+2. Create symbolic links from fastq dir
 
+3. Create config.yaml file 
+Make sure the file
+
+4. Run script on sbatch
+
+# Disclaimer
+This workflow is specific to working in slurm and conda environments. It is used mainly by SA Pathology MID PHL for downstream processing of the whole genome sequencing output.
