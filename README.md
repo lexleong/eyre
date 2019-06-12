@@ -8,6 +8,7 @@ A snakemake workflow that process fastq files of bacterial pathogens to produce:
 
 ### Requirements
 1. Nullarbor 
+
 It is best to install [Nullarbor](https://github.com/tseemann/nullarbor) using conda. 
 
 ```
@@ -21,6 +22,7 @@ conda install snakemake
 ```
 
 3. SISTR
+
 Installation can be performed according to [sistr_cmd](https://github.com/phac-nml/sistr_cmd).
 ```
 conda create -n sistr sistr_cmd
