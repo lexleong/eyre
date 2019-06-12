@@ -33,8 +33,19 @@ $ mkdir input
 ```
 2. Create symbolic links from fastq dir
 
-3. Create config.yaml file 
-Make sure the file
+3. Create config.yaml file
+
+The config.yaml file should contains matching sampleID to the fastq files.
+
+```
+samples:
+- SampleID
+- SampleID2
+
+salmonella:
+- SampleID
+
+```
 
 4. Run script on sbatch
 
