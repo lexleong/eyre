@@ -51,5 +51,5 @@ salmonella:
 
 4. Run script on sbatch
 
-# Disclaimer
+## Disclaimer
 This workflow is specific to working in slurm and conda environments. It is used mainly by SA Pathology MID PHL for downstream processing of the whole genome sequencing output.
