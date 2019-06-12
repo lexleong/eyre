@@ -6,7 +6,7 @@ A snakemake workflow that process fastq files of bacterial pathogens to produce:
 4. Subtyping (MLST)
 5. Antimicrobial resistance profile (abricate)
 
-# Requirements
+## Requirements
 1. Nullarbor 
 It is best to install Nullarbor using conda
 
