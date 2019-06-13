@@ -24,12 +24,6 @@ conda create -n nullarbor nullarbor
 conda install snakemake
 ```
 
-3. SISTR
-
-Installation can be performed according to [sistr_cmd](https://github.com/phac-nml/sistr_cmd).
-```
-conda create -n sistr sistr_cmd
-```
 ## Workflow
 
 1. Create input folder
