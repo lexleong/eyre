@@ -13,8 +13,7 @@ rule all:
         "denovo.tab",
         "mlst.tab",
         expand("{sample}/abricate.tab", sample=config["samples"]),
-        "resistome.tab",
-        "sistr.tab"
+        "resistome.tab"
 
 rule fq:
    input:
@@ -84,14 +83,3 @@ rule abricate_sum:
         "resistome.tab"
    shell:
         "abricate --summary {input} > {output}"
-
-rule sistr:
-   input:
-        expand("filtered_contigs/{salmonella}.fna", salmonella=config["salmonella"])
-   output:
-        all = "sistr.tab",
-        cgmlst = "cgmlst.csv"
-   conda:
-        "envs/sistr.yaml"
-   shell:
-        "sistr --qc --cgmlst-profiles {output.cgmlst} -f tab -o {output.all} {input}"
