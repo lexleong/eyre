@@ -1,5 +1,23 @@
 #### modify config files with sample sheets ####
 
+configfile:"config.yaml"
+
+rule all:
+    input:
+        "seq_data.tab"
+
+rule input_file_gen:
+    input:
+        expand("{sample}/yield.tab", sample=config["samples"])
+    output:
+        "seq_data.tab"
+    shell:
+        "/data/sacgf/microbio/lleong/commands/compile_seq_data.sh {input} > {output}"
+(nullarbor) [lleong1@sacgf snakemake]$ cat Snakefile_compile >> Snakefile
+(nullarbor) [lleong1@sacgf snakemake]$ nano Snakefile
+(nullarbor) [lleong1@sacgf snakemake]$ cat Snakefile
+#### modify config files with sample sheets ####
+
 configfile: "config.yaml"
 
 #### target rules ####
@@ -13,7 +31,10 @@ rule all:
         "denovo.tab",
         "mlst.tab",
         expand("{sample}/abricate.tab", sample=config["samples"]),
-        "resistome.tab"
+        "resistome.tab",
+        expand("{sample}/vfdb.tab", sample=config["samples"]),
+        "virulome.tab",
+        "seq_data.tab"
 
 rule fq:
    input:
@@ -83,3 +104,28 @@ rule abricate_sum:
         "resistome.tab"
    shell:
         "abricate --summary {input} > {output}"
+
+rule vfdb:
+   input:
+        "filtered_contigs/{sample}.fna"
+   output:
+        "{sample}/vfdb.tab"
+   shell:
+        "abricate --db vfdb {input} > {output}"
+
+rule vfdb_sum:
+   input:
+        expand("{sample}/vfdb.tab", sample=config["samples"])
+   output:
+        "virulome.tab"
+   shell:
+        "abricate --summary {input} > {output}"
+        "seq_data.tab"
+
+rule seq_data:
+    input:
+        expand("{sample}/yield.tab", sample=config["samples"])
+    output:
+        "seq_data.tab"
+    shell:
+        "compile_seq_data.sh {input} > {output}"
