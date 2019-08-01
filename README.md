@@ -23,6 +23,13 @@ conda create -n nullarbor nullarbor
 ```
 conda install snakemake
 ```
+3. An executable shell script to compile seq_data.
+
+```
+compile_seq_data.sh
+
+chmod +x compile_seq_data.sh #making the shell script executable
+```
 
 ## Workflow
 
@@ -31,8 +38,16 @@ conda install snakemake
 $ mkdir input
 ```
 2. Create symbolic links from fastq dir
+```
+ln -s /path/to/your/file/filename_R1.fastq.gz ./input/filename_R1.fastq.gz
+
+ln -s /path/to/your/file/filename_R2.fastq.gz ./input/filename_R1.fastq.gz
+```
 
 3. Create config.yaml file
+```
+bash create_configfile.sh
+```
 
 The config.yaml file should contains matching sampleID to the fastq files.
 
@@ -40,13 +55,41 @@ The config.yaml file should contains matching sampleID to the fastq files.
 samples:
 - SampleID
 - SampleID2
-
-salmonella:
-- SampleID
-
 ```
 
 4. Run script on sbatch
+
+```
+#!/bin/bash
+
+### Job Name
+#SBATCH --job-name=eyre
+
+### Set email type for job
+### Accepted options: NONE, BEGIN, END, FAIL, ALL
+#SBATCH --mail-type=ALL
+
+### email address for user
+#SBATCH --mail-user=[username.email.com]
+### Queue name that job is submitted to
+#SBATCH --partition=[your batch]
+
+### Request nodes
+#SBATCH --ntasks=16
+#SBATCH --mem=50gb
+#SBATCH --time=5:00:00
+
+echo Running on host `hostname`
+echo Time is `date`
+
+#module(s) if required module load application_module
+
+source $HOME/.bashrc
+$HOME/miniconda3/bin/conda init bash
+$HOME/miniconda3/bin/conda activate nullarbor
+
+snakemake -j 16 --snakefile [/path/to/your/snakemake/Snakefile] --configfile [/path/to/your/config.yaml]
+```
 
 ### Etymology
 
