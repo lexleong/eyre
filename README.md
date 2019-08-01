@@ -83,10 +83,9 @@ echo Running on host `hostname`
 echo Time is `date`
 
 #module(s) if required module load application_module
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate nullarbor
 
-source $HOME/.bashrc
-$HOME/miniconda3/bin/conda init bash
-$HOME/miniconda3/bin/conda activate nullarbor
 
 snakemake -j 16 --snakefile [/path/to/your/snakemake/Snakefile] --configfile [/path/to/your/config.yaml]
 ```
