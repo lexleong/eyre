@@ -46,7 +46,7 @@ ln -s /path/to/your/file/filename_R2.fastq.gz ./input/filename_R1.fastq.gz
 
 3. Create config.yaml file
 ```
-bash create_configfile.sh *_R1.fastq.gz
+bash create_configfile.sh
 ```
 
 The config.yaml file should contains matching sampleID to the fastq files.
