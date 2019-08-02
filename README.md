@@ -30,6 +30,8 @@ compile_seq_data.sh
 
 chmod +x compile_seq_data.sh #making the shell script executable
 ```
+4. Kraken database
+Modification on the Snakefile is required to direct the pipeline script to the directory path containing kraken2 database files (hash.k2d, taxo.k2d, and opts.k2d).
 
 ## Workflow
 
