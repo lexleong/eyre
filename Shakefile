@@ -12,7 +12,7 @@ rule input_file_gen:
     output:
         "seq_data.tab"
     shell:
-        "/data/sacgf/microbio/lleong/commands/compile_seq_data.sh {input} > {output}"
+        "compile_seq_data.sh {input} > {output}"
 (nullarbor) [lleong1@sacgf snakemake]$ cat Snakefile_compile >> Snakefile
 (nullarbor) [lleong1@sacgf snakemake]$ nano Snakefile
 (nullarbor) [lleong1@sacgf snakemake]$ cat Snakefile
@@ -71,7 +71,7 @@ rule remove_small:
    output:
         "filtered_contigs/{sample}.fna"
    shell:
-        "perl /data/sacgf/microbio/lleong/commands/removesmalls.pl 1000 {input}/contigs.fa > {output}"
+        "perl removesmalls.pl 1000 {input}/contigs.fa > {output}"
 
 rule assembly_quality:
    input:
