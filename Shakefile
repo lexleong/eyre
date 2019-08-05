@@ -71,7 +71,7 @@ rule remove_small:
    output:
         "filtered_contigs/{sample}.fna"
    shell:
-        "perl removesmalls.pl 1000 {input}/contigs.fa > {output}"
+        "seqtk seq -L 1000 {input}/contigs.fa > {output}"
 
 rule assembly_quality:
    input:
@@ -120,7 +120,6 @@ rule vfdb_sum:
         "virulome.tab"
    shell:
         "abricate --summary {input} > {output}"
-        "seq_data.tab"
 
 rule seq_data:
     input:
