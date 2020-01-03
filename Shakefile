@@ -1,24 +1,11 @@
 #### modify config files with sample sheets ####
 
-configfile:"config.yaml"
-
-rule all:
-    input:
-        "seq_data.tab"
-
-rule input_file_gen:
-    input:
-        expand("{sample}/yield.tab", sample=config["samples"])
-    output:
-        "seq_data.tab"
-    shell:
-        "compile_seq_data.sh {input} > {output}"
-(nullarbor) [lleong1@sacgf snakemake]$ cat Snakefile_compile >> Snakefile
-(nullarbor) [lleong1@sacgf snakemake]$ nano Snakefile
-(nullarbor) [lleong1@sacgf snakemake]$ cat Snakefile
-#### modify config files with sample sheets ####
-
 configfile: "config.yaml"
+
+### import other jobs ###
+import pathlib
+import os, getpass, shutil, re, psutil
+import pandas
 
 #### target rules ####
 
@@ -34,7 +21,10 @@ rule all:
         "resistome.tab",
         expand("{sample}/vfdb.tab", sample=config["samples"]),
         "virulome.tab",
-        "seq_data.tab"
+        expand("{sample}/plasmid.tab", sample=config["samples"]),
+        "plasmid.tab",
+        "seq_data.tab",
+        "species_identification.tab"
 
 rule fq:
    input:
@@ -95,7 +85,7 @@ rule abricate:
    output:
         "{sample}/abricate.tab"
    shell:
-        "abricate {input} > {output}"
+        "abricate --db ncbi {input} > {output}"
 
 rule abricate_sum:
    input:
@@ -121,10 +111,59 @@ rule vfdb_sum:
    shell:
         "abricate --summary {input} > {output}"
 
+rule plasmid:
+   input:
+        "filtered_contigs/{sample}.fna"
+   output:
+        "{sample}/plasmid.tab"
+   shell:
+        "abricate --db plasmidfinder {input} > {output}"
+
+rule plasmid_sum:
+   input:
+        expand("{sample}/plasmid.tab", sample=config["samples"])
+   output:
+        "plasmid.tab"
+   shell:
+        "abricate --summary {input} > {output}"
+
 rule seq_data:
     input:
         expand("{sample}/yield.tab", sample=config["samples"])
     output:
         "seq_data.tab"
     shell:
-        "compile_seq_data.sh {input} > {output}"
+        "/data/sacgf/microbio/lleong/commands/compile_seq_data.sh {input} > {output}"
+
+rule combine_kraken:
+   input:
+        expand("{sample}/kraken2.tab", sample = config["samples"])
+   output:
+        "species_identification.tab"
+   run:
+        import pandas, pathlib, subprocess
+        kfiles = f"{input}".split()
+        id_table = pandas.DataFrame()
+        for k in kfiles:
+            kraken = pathlib.Path(k)
+            df = pandas.read_csv(kraken, sep = "\t", header =None, names = ['percentage', 'frag1', 'frag2','code','taxon','name'])
+            df['percentage'] = df['percentage'].apply(lambda x:float(x.strip('%')) if isinstance(x, str) == True else float(x)) 
+            df = df.sort_values(by = ['percentage'], ascending = False)
+            df = df[df['code'].isin(['U','S'])]
+            df = df.reset_index(drop = True)
+            tempdf = pandas.DataFrame()
+            d = {'Isolate': f"{kraken.parts[0]}",
+                    '#1 Match': df.ix[0,'name'].strip(), '%1': df.ix[0,'percentage'],
+                    '#2 Match': df.ix[1,'name'].strip(), '%2': df.ix[1,'percentage'],
+                    '#3 Match': df.ix[2,'name'].strip(), '%3': df.ix[2,'percentage']
+                 }
+
+            tempdf = pandas.DataFrame(data = d, index= [0])
+            if id_table.empty:
+                    id_table = tempdf
+            else:
+                    id_table = id_table.append(tempdf, sort = True)
+        cols_list = ['Isolate', '#1 Match', '%1', '#2 Match', '%2', '#3 Match', '%3']
+        id_table = id_table.reindex(cols_list, axis = 'columns')
+        id_table.to_csv(f"{output}", sep = "\t", index = False)
+        subprocess.run("sed -i 's/%[0-9]/%/g' {output}", shell=True)
