@@ -37,33 +37,11 @@ echo "This script will remove Negative controls with string "NEG" within their I
 $ chmod +x create_configfile.sh
 ```
 
-4. An executable script for compiling sequencing yield (fa) results
-*NOTE: The Eyre pipeline will look for the compile_seq_data.sh from the sacgf.ersa.edu:/data/sacgf/microbio/lleong/commands/ directory. If it is used on a different server, please change this directory in the eyre snakefile
-```
-$ cat compile_seq_data.sh
-#!/bin/sh
-input=${@?Error:no input given}
-awk 'BEGIN{ print "#Acession\tReads\tYield\tGeeCee\tMinLen\tAvgLen\tMaxLen\tModeLen\tPhred\tAvgQual"}; {print $2}' $input | tr '\n' '\t' | sed $'s/input/\\\n&/g' | sed 's/input\///g;s/_R1.fastq.gz//g' | sed -e '$a\'
-
-$ chmod +x compile_seq_data.sh
-```
-5. An executable script for compiling Kraken results
-```
-$ cat compile_kraken.sh
-#!/bin/sh
-input=${@?Error:no input given}
-awk 'BEGIN{ print "#FILE\tSpecies Identification\tPercentage"}; ($4=="S" && $1>=20) {print FILENAME "\t" $6 " " $7 "\t" $1}' $input > kraken_raw.tab
-mkdir kraken
-tail -n +2 kraken_raw.tab | awk 'BEGIN { FS="\t" } { c[$1]++; l[$1,c[$1]]=$0 } END { for (i in c) { if (c[i] > 1) for (j = 1; j <= c[i]; j++) print l[i,j]>"kraken/failed.out" } }; {name=$2; gsub(/[ ]/, "_", name); print>"kraken/"name".tab";}'
-
-$ chmod +x compile_kraken.sh
-```
-
-6. Kraken database
+4. Kraken database
 
 Modification on the Snakefile is required to direct the pipeline script to the directory path containing kraken2 database files (hash.k2d, taxo.k2d, and opts.k2d).
 
-7. Slurm job submitting file (conda-eyre.sub)
+5. Slurm job submitting file (conda-eyre.sub)
 
 ```
 #!/bin/bash
