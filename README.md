@@ -28,7 +28,7 @@ $ conda install snakemake
 
 3. Git clone the eyre repository 
 ```
-$ git clone https://github.com/lexleong/eyre/
+$ git clone https://github.com/lexleong/eyre.git
 ```
 
 4. Download Kraken2 database
