@@ -133,7 +133,7 @@ rule seq_data:
     output:
         "seq_data.tab"
     shell:
-        "/data/sacgf/microbio/lleong/commands/compile_seq_data.sh {input} > {output}"
+        "compile_seq_data.sh {input} > {output}"
 
 rule combine_kraken:
    input:
