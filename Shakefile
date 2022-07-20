@@ -43,7 +43,7 @@ rule kraken:
         "{sample}/kraken2.tab"
    threads: 4
    shell:
-        "kraken2 --threads {threads} --memory-mapping --db /data/sacgf/microbio/lleong/ref_tab/kraken2/microbe/ --report {output} --paired {input.r1} {input.r2}"
+        "kraken2 --threads {threads} --memory-mapping --db /scratch/kraken/k2_pluspf_20220607/ --report {output} --paired {input.r1} {input.r2}"
 
 rule shovill:
    input:
